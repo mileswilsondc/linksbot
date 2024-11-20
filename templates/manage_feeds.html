@@ -1,0 +1,67 @@
+<!-- templates/manage_feeds.html -->
+{% extends 'base.html' %}
+
+{% block title %}Manage Feeds - RSS Feed Reader{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Manage RSS Feeds</h1>
+
+<!-- Add a New Feed -->
+<div class="card mb-4">
+    <div class="card-header">
+        Add a New Feed
+    </div>
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <input type="hidden" name="action" value="add">
+            <div class="col-auto">
+                <input type="url" name="feed_url" class="form-control" placeholder="Enter RSS feed URL" required>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary mb-3">Add Feed</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Existing Feeds -->
+<div class="card">
+    <div class="card-header">
+        Existing Feeds
+    </div>
+    <div class="card-body p-0">
+        {% if feeds %}
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Feed URL</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feed in feeds %}
+                    <tr>
+                        <td>{{ feed }}</td>
+                        <td>
+                            <form method="post" class="d-inline">
+                                <input type="hidden" name="action" value="remove">
+                                <input type="hidden" name="feed_url" value="{{ feed }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-body">
+            <p class="card-text">No feeds added yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<a href="{{ url_for('display_articles') }}" class="btn btn-link mt-4">Back to Articles</a>
+{% endblock %}

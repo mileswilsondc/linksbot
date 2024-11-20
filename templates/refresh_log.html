@@ -1,0 +1,57 @@
+<!-- templates/refresh_log.html -->
+{% extends 'base.html' %}
+
+{% block title %}Refresh Feeds - RSS Feed Reader{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Refresh Feeds</h1>
+
+<!-- Refresh Feeds Button -->
+<div class="mb-4">
+    <form method="post">
+        <button type="submit" class="btn btn-primary">Refresh All Feeds</button>
+    </form>
+</div>
+
+<!-- Refresh Log -->
+<div class="card">
+    <div class="card-header">
+        Refresh Log
+    </div>
+    <div class="card-body p-0">
+        {% if logs %}
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Feed URL</th>
+                        <th>Last Refresh Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log[0] }}</td>
+                        <td>{{ log[1] }}</td>
+                        <td>
+                            <form action="{{ url_for('refresh_feed') }}" method="post" style="display:inline;">
+                                <input type="hidden" name="feed_url" value="{{ log[0] }}">
+                                <button type="submit" class="btn btn-primary btn-sm">Refresh</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-body">
+            <p class="card-text">No refresh logs available.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<a href="{{ url_for('display_articles') }}" class="btn btn-link mt-4">Back to Articles</a>
+{% endblock %}

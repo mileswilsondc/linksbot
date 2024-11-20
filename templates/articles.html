@@ -1,0 +1,36 @@
+<!-- templates/articles.html -->
+{% extends 'base.html' %}
+
+{% block title %}Articles - RSS Feed Reader{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Articles</h1>
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th>Publication Time</th>
+            <th>Author</th>
+            <th>URL</th>
+            <th>Classification</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for article in articles %}
+        <tr>
+            <td>{{ article['title'] }}</td>
+            <td>{{ article['pubTime'] }}</td>
+            <td>{{ article['author'] }}</td>
+            <td><a href="{{ article['url'] }}" target="_blank" class="btn btn-sm btn-primary">View</a></td>
+            <td>
+                {% if article['classification'] %}
+                    <span class="badge bg-secondary">{{ article['classification'].capitalize() }}</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Unclassified</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

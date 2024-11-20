@@ -1,0 +1,80 @@
+<!-- templates/classify.html -->
+{% extends 'base.html' %}
+
+{% block title %}Classify Articles - RSS Feed Reader{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Classify Articles</h1>
+{% if article %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ article[1] }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">By {{ article[2] }}</h6>
+        <p class="card-text"><a href="{{ article[3] }}" target="_blank">Read Article</a></p>
+    </div>
+</div>
+<form method="post" class="mb-3" id="classification-form">
+    <input type="hidden" name="article_id" value="{{ article[0] }}">
+    <div class="d-flex justify-content-around">
+        <button type="submit" name="classification" value="relevant" id="relevant" class="btn btn-success">
+            <i class="bi bi-arrow-left"></i> Relevant
+        </button>
+        <button type="submit" name="classification" value="ignored" id="ignored" class="btn btn-secondary">
+            Ignore <i class="bi bi-arrow-down"></i>
+        </button>
+        <button type="submit" name="classification" value="irrelevant" id="irrelevant" class="btn btn-danger">
+            Irrelevant <i class="bi bi-arrow-right"></i>
+        </button>
+    </div>
+</form>
+<p class="text-muted">Use the left, right, or down arrow keys to classify the article.</p>
+{% else %}
+<div class="alert alert-info" role="alert">
+    No more articles to classify!
+</div>
+{% endif %}
+<a href="{{ url_for('display_articles') }}" class="btn btn-link">Back to Articles</a>
+
+<!-- Display the count of unclassified articles -->
+<p class="mt-4">Unclassified Articles: {{ unclassified_count }}</p>
+{% endblock %}
+
+{% block scripts %}
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<!-- JavaScript to handle arrow key classification -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure the form exists before adding the event listener
+    const form = document.getElementById('classification-form');
+    if (!form) return;
+
+    // Add a keydown event listener to the entire document
+    document.addEventListener('keydown', function(event) {
+        // Check if any modifier keys are pressed to avoid conflicts
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return;
+        }
+
+        switch(event.key) {
+            case 'ArrowLeft':
+                event.preventDefault(); // Prevent default action
+                document.getElementById('relevant').click();
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                document.getElementById('ignored').click();
+                break;
+            case 'ArrowRight':
+                event.preventDefault();
+                document.getElementById('irrelevant').click();
+                break;
+            default:
+                // Do nothing for other keys
+                break;
+        }
+    });
+});
+</script>
+{% endblock %}
