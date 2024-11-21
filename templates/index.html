@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Latest News</h1>
+
+<ul>
+    {% for title, url in articles %}
+        <li><a href="{{ url }}">{{ title }}</a></li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

@@ -66,7 +66,7 @@ def relative_time(dt):
         weeks = diff.days // 7
         return f"{weeks} week{'s' if weeks > 1 else ''} ago"
 
-@app.route('/')
+@app.route('/articles')
 def display_articles():
     # Check if 'verbose=true' is in the URL parameters
     verbose = request.args.get('verbose', 'false').lower() == 'true'
@@ -133,9 +133,6 @@ def classify():
         c.execute("SELECT COUNT(*) FROM articles WHERE classification IS NULL")
         unclassified_count = c.fetchone()[0]
         
-    if not article:
-        return "No more articles to classify!"
-
     if request.method == 'POST':
         classification = request.form.get('classification')
         article_id = request.form.get('article_id')
@@ -163,6 +160,14 @@ def manage_feeds():
     
     feeds = get_feeds()
     return render_template('manage_feeds.html', feeds=feeds)
+
+@app.route('/')
+def index():
+    with sqlite3.connect(DB_PATH) as conn:
+        c = conn.cursor()
+        c.execute("SELECT title, url FROM articles ORDER BY pubTime DESC LIMIT 6")
+        articles = c.fetchall()
+    return render_template('index.html', articles=articles)
 
 if __name__ == '__main__':
     init_db()
