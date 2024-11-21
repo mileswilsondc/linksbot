@@ -55,7 +55,7 @@ def relative_time(dt):
         return "just now"
     elif diff < timedelta(hours=1):
         minutes = diff.seconds // 60
-        return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+        return f"{minutes} min{'s' if minutes > 1 else ''} ago"
     elif diff < timedelta(days=1):
         hours = diff.seconds // 3600
         return f"{hours} hour{'s' if hours > 1 else ''} ago"
@@ -105,7 +105,23 @@ def refresh():
         refresh_feeds(DB_PATH)
         flash('Feeds have been refreshed!', 'success')
         return redirect(url_for('refresh'))
-    return render_template('refresh_log.html', logs=get_refresh_log())
+
+    logs = get_refresh_log()
+
+    # Process logs to include relative times
+    processed_logs = []
+    for log in logs:
+        feed_url = log[0]
+        last_refresh_str = log[1]
+
+        # Parse the last_refresh_str into a datetime object
+        last_refresh_dt = datetime.fromisoformat(last_refresh_str)
+        relative_last_refresh = relative_time(last_refresh_dt)
+
+        # Append the processed log
+        processed_logs.append((feed_url, relative_last_refresh))
+
+    return render_template('refresh_log.html', logs=processed_logs)
 
 @app.route('/refresh_feed', methods=['POST'])
 def refresh_feed():
