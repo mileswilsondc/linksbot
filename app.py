@@ -159,11 +159,12 @@ def classify():
         return redirect(url_for('classify'))
     return render_template('classify.html', article=article, unclassified_count=unclassified_count)
 
-@app.route('/manage_feeds', methods=['GET', 'POST'])
+@app.route('/feeds', methods=['GET', 'POST'])
 def manage_feeds():
     if request.method == 'POST':
         action = request.form.get('action')
-        feed_url = request.form.get('feed_url').strip()
+        feed_url = request.form.get('feed_url', '').strip()
+        
         if action == 'add':
             if add_feed(feed_url):
                 flash('Feed added successfully!', 'success')
@@ -172,10 +173,37 @@ def manage_feeds():
         elif action == 'remove':
             remove_feed(feed_url)
             flash('Feed removed successfully!', 'success')
+        elif action == 'refresh_all':
+            refresh_feeds(DB_PATH)
+            flash('Feeds have been refreshed!', 'success')
+        elif action == 'refresh_feed':
+            if feed_url:
+                refresh_feeds(DB_PATH, feed_url)
+                flash(f'Feed {feed_url} has been refreshed!', 'success')
+            else:
+                flash('No feed URL provided.', 'error')
         return redirect(url_for('manage_feeds'))
-    
-    feeds = get_feeds()
-    return render_template('manage_feeds.html', feeds=feeds)
+
+    with sqlite3.connect(DB_PATH) as conn:
+        c = conn.cursor()
+        c.execute("""
+            SELECT feeds.feed_url, refresh_log.last_refresh
+            FROM feeds
+            LEFT JOIN refresh_log ON feeds.feed_url = refresh_log.feed_url
+        """)
+        feeds = c.fetchall()
+
+    processed_feeds = []
+    for feed in feeds:
+        feed_url = feed[0]
+        last_refresh_str = feed[1]
+        if last_refresh_str:
+            last_refresh_dt = datetime.fromisoformat(last_refresh_str)
+            relative_last_refresh = relative_time(last_refresh_dt)
+        else:
+            relative_last_refresh = 'Never'
+        processed_feeds.append({'feed_url': feed_url, 'last_refresh': relative_last_refresh})
+    return render_template('manage_feeds.html', feeds=processed_feeds)
 
 @app.route('/')
 def index():
